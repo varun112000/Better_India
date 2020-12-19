@@ -21,11 +21,11 @@
                     <p class="card-text">Details: {{info['details']}}</p>
                     <p class="card-text">Location: {{info['location']}}</p>
                     <p class="card-text">Date and Time: {{info['date']}}</p>
-                    <a href="#" class="btn btn-primary btn-sm ">View Messages</a>
+                    <a href="/issues/{{info['_id']}}/messages" class="btn btn-primary btn-sm ">View Messages</a>
                 </div>
             </div>
             <div class="col-sm-2 voting">
-                <a href="#" class="btn btn-info" role="button">Upvote</a>
+                <a href="/upvote/{{info['_id']}}" class="btn btn-info" role="button">Upvote</a>
                 {% if session.get('name')=='admin' and session.get('email')=='admin@admin.com'%}
                     <p class="card-text">Count:  </p>
                 {% endif %}

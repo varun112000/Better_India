@@ -5,6 +5,7 @@ from bson.objectid import ObjectId
 from Application import db, users, issues, grid_fs
 import base64
 import codecs
+import json
 
 @app.route('/')
 @app.route('/home')
@@ -71,8 +72,8 @@ def addissue():
 
         else:
             status = ""
-            messages = list()
             upvote = list()
+            messages = list()
             # with grid_fs.new_file(filename = request.form['image']) as fp:
             #     fp.write(request.data)
             #     file_id = fp._id
@@ -92,10 +93,7 @@ def allissues():
 @app.route('/editissue/<string:idx>', methods = ["GET", "POST"])
 def editissue(idx=None):
     if request.method == 'POST':
-        status = ""
-        messages = list()
-        upvote = list()
-        issues.find_one_and_update({'_id':ObjectId(idx)},{"$set":{{'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email'), 'status':status, 'upvote':upvote, 'messages':messages}}})
+        issues.find_one_and_update({'_id':ObjectId(idx)},{"$set":{'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email')}})
         return redirect('/issues')
     else:
         data = issues.find({'_id':ObjectId(idx)})[0]
@@ -111,6 +109,23 @@ def myissue():
     infos = list(issues.find({'name':session.get('name'), 'email':session.get('email')}))
     return render_template('myissues.html', infos=infos)
 
+@app.route('/issues/<string:idx>/messages')
+def messages(idx = None):
+    data = issues.find({'_id':ObjectId(idx)})[0]
+    a = dict()
+    a['id'] = idx
+    a['title'] = data['title']
+    a['messages'] = data['messages']
+    return render_template('message.html', mess = a )
+
+@app.route('/issues/<string:idx>/messages/add', methods=["POST", "GET"])
+def addmessage(idx=None):
+    if idx==None:
+        return redirect('/issues')
+    else:
+        b ={'name':session.get('name'), 'comment':request.form['comment']}
+        issues.update_one({'_id':ObjectId(idx)},{"$push":{'messages':b}},)
+        return redirect('/issues/'+str(idx)+'/messages')
 
 
 
