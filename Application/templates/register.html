@@ -3,34 +3,21 @@
 <title>Register</title>
 {% endblock %}
 {% block body %}
-    {% with messages = get_flashed_messages(with_categories = true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{category}}">
-                    <p>
-                        <b>
-                            {{message}}
-                        </b>
-                    </p>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
     <div style="margin: 3% auto;">
         <h1 style="text-align: center; ">Register</h1>
-        <div class="jumbotron tharun" style="
+        <div class="jumbotron reg" style="
         margin: auto;
         width: 40%;
         border-radius: 10px;
         box-shadow: 10px 10px 5px grey;
         padding: 2%;
         @media screen and (max-width: 360px;){
-            .tharun{
+            .reg{
                 width: 50%;
             }
         }
         @media screen and (max-width: 768px;){
-            .tharun{
+            .reg{
                 width: 50%;
             }
         }
