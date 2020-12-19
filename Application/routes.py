@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from Application import db, users, issues, grid_fs
 import base64
+import codecs
 
 @app.route('/')
 @app.route('/home')
@@ -64,22 +65,52 @@ def logout():
 @app.route('/addissue', methods = ["GET", "POST"])
 def addissue():
     if request.method == "POST":
-        if issues.find_one({'Title':request.form['title'], 'location':request.form['location'], 'time':request.form['time'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email')}):
+        if issues.find_one({'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email')}):
             # flash("Email Already Exist's","danger")
             return redirect("/issues")
 
         else:
-            with grid_fs.new_file(filename = request.form['image']) as fp:
-                fp.write(request.data)
-                file_id = fp._id
-            if grid_fs.find_one(file_id) is not None:
-                issues.insert_one({'Title':request.form['title'], 'location':request.form['location'], 'time':request.form['time'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email'), 'image':file_id})
+            status = ""
+            messages = list()
+            upvote = list()
+            # with grid_fs.new_file(filename = request.form['image']) as fp:
+            #     fp.write(request.data)
+            #     file_id = fp._id
+            # if grid_fs.find_one(file_id) is not None:
+            issues.insert_one({'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email'), 'status':status, 'upvote':upvote, 'messages':messages})
             # flash("You are Successfully Registered","success")
             return redirect("/issues")
         
     return render_template('addissue.html')    
+    
 
 @app.route('/issues')
 def allissues():
-    informations = issues.find({})
-    return render_template('issues.html', informations= informations)
+    infos = list(issues.find({}))
+    return render_template('issues.html', infos=infos)
+
+@app.route('/editissue/<string:idx>', methods = ["GET", "POST"])
+def editissue(idx=None):
+    if request.method == 'POST':
+        status = ""
+        messages = list()
+        upvote = list()
+        issues.find_one_and_update({'_id':ObjectId(idx)},{"$set":{{'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email'), 'status':status, 'upvote':upvote, 'messages':messages}}})
+        return redirect('/issues')
+    else:
+        data = issues.find({'_id':ObjectId(idx)})[0]
+        return render_template('editissue.html', data= data)
+
+@app.route('/deleteissue/<string:idx>')
+def deleteissue(idx=None):
+    issues.delete_one({'_id':ObjectId(idx)})
+    return redirect('/issues')
+
+@app.route('/myissues')
+def myissue():
+    infos = list(issues.find({'name':session.get('name'), 'email':session.get('email')}))
+    return render_template('myissues.html', infos=infos)
+
+
+
+

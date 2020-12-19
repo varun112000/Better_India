@@ -4,7 +4,7 @@ from gridfs import GridFS
 import os
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = "Varun"
 
 
 cluster = MongoClient("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")

@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 
 {% block head%}
-<title>All Issues</title>
+<title>My Issues</title>
 <link rel="stylesheet" href="static\css\issuess.css">
 {% endblock %}
+
 {% block body %}
 <div style="margin:1% auto;">
     <div class="container" >
@@ -22,13 +23,9 @@
                     <p class="card-text">Location: {{info['location']}}</p>
                     <p class="card-text">Date and Time: {{info['date']}}</p>
                     <a href="#" class="btn btn-primary btn-sm ">View Messages</a>
+                    <a href="/editissue/{{info['_id']}}" class="btn btn-primary btn-sm ">Edit</a>
+                    <a href="/deleteissue/{{info['_id']}}" class="btn btn-danger btn-sm ">Delete</a>
                 </div>
-            </div>
-            <div class="col-sm-2 voting">
-                <a href="#" class="btn btn-info" role="button">Upvote</a>
-                {% if session.get('name')=='admin' and session.get('email')=='admin@admin.com'%}
-                    <p class="card-text">Count:  </p>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -37,14 +34,5 @@
     </div>
 </div>
 {% endblock %}
-
-
-
-
-
-
-
-
-
 
 
