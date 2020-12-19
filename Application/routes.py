@@ -1,13 +1,18 @@
 from Application import app
-from flask import render_template, request, url_for, flash, redirect, session
+from flask import render_template, request, url_for, flash, redirect, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
-from Application import users, issues
+from Application import db, users, issues, grid_fs
+import base64
 
 @app.route('/')
 @app.route('/home')
 def index():
     return render_template('index.html')
+
+@app.route('/about_us')
+def aboutus():
+    return render_template('aboutus.html')
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -56,3 +61,25 @@ def logout():
     flash("Successfully logged out",'success')
     return redirect('/')
     
+@app.route('/addissue', methods = ["GET", "POST"])
+def addissue():
+    if request.method == "POST":
+        if issues.find_one({'Title':request.form['title'], 'location':request.form['location'], 'time':request.form['time'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email')}):
+            # flash("Email Already Exist's","danger")
+            return redirect("/issues")
+
+        else:
+            with grid_fs.new_file(filename = request.form['image']) as fp:
+                fp.write(request.data)
+                file_id = fp._id
+            if grid_fs.find_one(file_id) is not None:
+                issues.insert_one({'Title':request.form['title'], 'location':request.form['location'], 'time':request.form['time'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email'), 'image':file_id})
+            # flash("You are Successfully Registered","success")
+            return redirect("/issues")
+        
+    return render_template('addissue.html')    
+
+@app.route('/issues')
+def allissues():
+    informations = issues.find({})
+    return render_template('issues.html', informations= informations)
