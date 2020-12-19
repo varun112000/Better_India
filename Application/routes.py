@@ -128,4 +128,9 @@ def addmessage(idx=None):
         return redirect('/issues/'+str(idx)+'/messages')
 
 
+@app.route('/upvote/<string:idx>')
+def upvote(idx=None):
+    b = {'name':session.get('name'), 'email':session.get('email')}
+    issues.update_one({'_id':ObjectId(idx)},{"$addToSet":{'upvote':b}})
+    return redirect('/issues')
 
