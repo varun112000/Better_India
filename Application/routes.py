@@ -1,5 +1,5 @@
 from Application import app
-from flask import render_template, request, url_for, flash, redirect, session, jsonify
+from flask import render_template, request, url_for, flash, redirect, session, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from Application import db, users, issues, grid_fs
@@ -73,13 +73,19 @@ def addissue():
                 status = "Pending"
                 upvote = list()
                 messages = list()
-                # with grid_fs.new_file(filename = request.form['image']) as fp:
-                #     fp.write(request.data)
-                #     file_id = fp._id
-                # if grid_fs.find_one(file_id) is not None:
-                issues.insert_one({'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email'), 'status':status, 'upvote':upvote, 'messages':messages})
-                flash("Issue Added","success")
-                return redirect("/issues")
+                with grid_fs.new_file(filename = request.files['image'].filename) as fp:
+                    fp.write(request.files['image'])
+                file_id = fp._id
+                grid_fs_file = grid_fs.find_one({'filename':request.files['image'].filename})
+                base64_data = codecs.encode(grid_fs_file.read(), 'base64')
+                imagedata = base64_data.decode('utf-8')
+                if grid_fs.find_one(file_id) is not None:
+                    issues.insert_one({'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email'), 'status':status, 'upvote':upvote, 'messages':messages, 'imageid':file_id, 'imagedata':imagedata})
+                    flash("Issue Added","success")
+                    return redirect("/issues")
+                else:
+                    flash("Error in Adding Image","danger")
+                    return redirect("/addissue")
         return render_template('addissue.html')
     else:
         return redirect('/login')    
@@ -89,6 +95,12 @@ def addissue():
 def allissues():
     if session.get('name'):
         infos = list(issues.find({}))
+        # grid_fs_file = grid_fs.find_one({'filename':'IMG_20200919_131639.jpg'})
+        # print(grid_fs.find_one({'filename':'traffic.jpg'}))
+        # base64_data = codecs.encode(grid_fs_file.read(), 'base64')
+        # image = base64_data.decode('utf-8')
+        # print(image)
+        # infos[0]['image'] = image
         return render_template('issues.html', infos=infos)
     else:
         return redirect('/login')
@@ -98,10 +110,19 @@ def allissues():
 def editissue(idx=None):
     if session.get('name'):
         if request.method == 'POST':
-            issues.find_one_and_update({'_id':ObjectId(idx)},{"$set":{'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email')}})
-            flash("Issue Updated","success")
-
-            return redirect('/issues')
+            status = "Pending"
+            upvote = list()
+            messages = list()
+            with grid_fs.new_file(filename = request.files['image'].filename) as fp:
+                fp.write(request.files['image'])
+            file_id = fp._id
+            grid_fs_file = grid_fs.find_one({'filename':request.files['image'].filename})
+            base64_data = codecs.encode(grid_fs_file.read(), 'base64')
+            imagedata = base64_data.decode('utf-8')
+            if grid_fs.find_one(file_id) is not None:
+                issues.find_one_and_update({'_id':ObjectId(idx)},{"$set":{'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email'), 'status':status, 'upvote':upvote, 'messages':messages, 'imageid':file_id, 'imagedata':imagedata}})
+                flash("Issue Updated","success")
+                return redirect('/issues')
         else:
             data = issues.find({'_id':ObjectId(idx)})[0]
             return render_template('editissue.html', data= data)
@@ -113,7 +134,6 @@ def deleteissue(idx=None):
     if session.get('name'):
         issues.delete_one({'_id':ObjectId(idx)})
         flash("Issue Deleted","success")
-
         return redirect('/myissues')
     else:
         return redirect('/login')
