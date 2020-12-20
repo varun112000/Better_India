@@ -110,9 +110,6 @@ def allissues():
 def editissue(idx=None):
     if session.get('name'):
         if request.method == 'POST':
-            status = "Pending"
-            upvote = list()
-            messages = list()
             with grid_fs.new_file(filename = request.files['image'].filename) as fp:
                 fp.write(request.files['image'])
             file_id = fp._id
@@ -120,7 +117,7 @@ def editissue(idx=None):
             base64_data = codecs.encode(grid_fs_file.read(), 'base64')
             imagedata = base64_data.decode('utf-8')
             if grid_fs.find_one(file_id) is not None:
-                issues.find_one_and_update({'_id':ObjectId(idx)},{"$set":{'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email'), 'status':status, 'upvote':upvote, 'messages':messages, 'imageid':file_id, 'imagedata':imagedata}})
+                issues.find_one_and_update({'_id':ObjectId(idx)},{"$set":{'title':request.form['title'], 'location':request.form['location'], 'date':request.form['date'], 'details':request.form['details'], 'name':session.get('name'), 'email':session.get('email'), 'imageid':file_id, 'imagedata':imagedata}})
                 flash("Issue Updated","success")
                 return redirect('/issues')
         else:
