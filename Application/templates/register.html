@@ -3,7 +3,20 @@
 <title>Register</title>
 {% endblock %}
 {% block body %}
-    <div style="margin: 3% auto;">
+    {% with messages = get_flashed_messages(with_categories = true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{category}}">
+                <p>
+                <b>
+                    {{message}}
+                </b>
+                </p>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div style="margin: 2% auto;">
         <h1 style="text-align: center; ">Register</h1>
         <div class="jumbotron reg" style="
         margin: auto;
