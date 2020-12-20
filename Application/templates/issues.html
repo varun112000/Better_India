@@ -44,11 +44,14 @@
                             {% endif %}
                         </span>
                     </button>
-                
-
                 </a>
                 {% if session.get('name')=='admin' and session.get('email')=='admin@admin.com'%}
-                    <p class="card-text">Count:  </p>
+                    <p class="card-text">Count:{% set aab = namespace(value=0) %}
+                        {% for i in info['upvote'] %}
+                                {% set aab.value = aab.value + 1  %}
+                        {% endfor %}
+                        {{aab.value}}
+                    </p>
                 {% endif %}
             </div>
         </div>

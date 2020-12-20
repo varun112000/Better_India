@@ -102,7 +102,7 @@ def editissue(idx=None):
 @app.route('/deleteissue/<string:idx>')
 def deleteissue(idx=None):
     issues.delete_one({'_id':ObjectId(idx)})
-    return redirect('/issues')
+    return redirect('/myissues')
 
 @app.route('/myissues')
 def myissue():
