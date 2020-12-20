@@ -71,13 +71,19 @@
                         <form action="/issues/{{info['_id']}}/updatestatus" method="POST">
                         <select class="custom-select my-1 btn btn-sm"  name="status">
                           <option selected>{{info['status']}}</option>
-                          <option value="Pending">Pending</option>
+                          <option value="open">Open</option>
+                          <option value="No action taken">No action taken</option>
                           <option value="Submitted to newspapaer">Submitted to newspapaer</option>
                           <option value="Resolved">Resolved</option>
                         </select>
                         <button type="submit" class="btn btn-info btn-sm">Status Update</button>
                         </form>                      
                     </p>
+                    {% else %}
+                    <p class="card-text">
+                        <button class="btn btn-info btn-sm">{{info['status']}}</button>            
+                    </p>
+
                 {% endif %}
             </div>
         </div>

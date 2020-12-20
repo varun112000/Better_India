@@ -70,7 +70,7 @@ def addissue():
                 return redirect("/issues")
 
             else:
-                status = "Pending"
+                status = "Open"
                 upvote = list()
                 messages = list()
                 with grid_fs.new_file(filename = request.files['image'].filename) as fp:
